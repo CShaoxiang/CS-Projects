@@ -4,8 +4,9 @@ def binary_search(keys, query, left=0, right=None):
 
     if left > right:
         return -1
-
-    mid = (left + right) // 2
+    
+    #  left + (right - left) // 2 == (left + right) // 2 , prevent overflow 
+    mid = left + (right - left) // 2
 
     if query < keys[mid]:
         return binary_search(keys, query, left, mid - 1)
