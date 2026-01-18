@@ -1,18 +1,21 @@
 package com.easychat.service;
 
-import java.util.Map;
+import com.easychat.entity.dto.CheckCodeResponseDTO;
+import com.easychat.entity.dto.LoginRequestDTO;
+import com.easychat.entity.dto.LoginResponseDTO;
+import com.easychat.entity.dto.RegisterRequestDTO;
+
 
 public interface AccountService {
 
-    /**
-     * Generates a captcha image and stores the expected answer in Redis with TTL.
-     * Returns Base64 image data and a unique checkCodeKey.
-     */
-    Map<String,String> createCheckCode();
+    CheckCodeResponseDTO createCheckCode();
 
     /**
      * Validates a user-submitted captcha against Redis.
      * Typically, deletes the captcha key after validation (one-time use).
      */
     boolean validateCheckCode(String checkCodeKey, String inputCode);
+
+    LoginResponseDTO login(LoginRequestDTO request);
+    void register(RegisterRequestDTO request);
 }
