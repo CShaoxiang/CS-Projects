@@ -3,13 +3,21 @@ package com.easychat.service.impl;
 
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.*;
+import com.easychat.entity.enums.UserStatusEnum;
 import com.easychat.entity.po.UserInfo;
+import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.exception.BusinessException;
+import com.easychat.mappers.UserInfoMapper;
+import com.easychat.redis.RedisComponent;
 import com.easychat.redis.RedisUtils;
 import com.easychat.service.AccountService;
+import com.easychat.utils.StringTools;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.springframework.stereotype.Service;
 
+
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.UUID;
 
 @Service("accountService")
@@ -17,20 +25,29 @@ public class AccountServiceImpl implements AccountService {
 
     private static final int CAPTCHA_WIDTH = 100;
     private static final int CAPTCHA_HEIGHT = 42;
-    private static final long CAPTCHA_TTL_SECONDS = Constants.REDIS_TIME_1MIN * 6 ;
+    private static final long CAPTCHA_TTL_SECONDS = Constants.REDIS_TIME_1MIN * 6;
 
 
     private final RedisUtils<String> redisUtils;
+
+    @Resource
+    private final RedisComponent redisComponent;
     private final UserInfoServiceImpl userInfoService;
 
-    public AccountServiceImpl(RedisUtils<String> redisUtils, UserInfoServiceImpl userInfoService) {
+    @Resource
+    private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+
+
+    public AccountServiceImpl(RedisUtils<String> redisUtils, RedisComponent redisComponent, UserInfoServiceImpl userInfoService) {
         this.redisUtils = redisUtils;
+        this.redisComponent = redisComponent;
         this.userInfoService = userInfoService;
+
     }
 
 
     @Override
-    public CheckCodeResponseDTO createCheckCode(){
+    public CheckCodeResponseDTO createCheckCode() {
         // 1) Generate captcha
         ArithmeticCaptcha captcha = new ArithmeticCaptcha(CAPTCHA_WIDTH, CAPTCHA_HEIGHT);
 
@@ -48,7 +65,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public boolean validateCheckCode(String checkCodeKey, String inputCode) {
-        if (isBlank(checkCodeKey)||  isBlank(inputCode)) {
+        if (StringTools.isEmpty(checkCodeKey) || StringTools.isEmpty(inputCode)) {
             return false;
         }
 
@@ -59,36 +76,13 @@ public class AccountServiceImpl implements AccountService {
         // 2) One-time use: delete after reading (prevents replay)
         redisUtils.delete(redisKey);
 
-        if (expected == null){
+        if (expected == null) {
             return false;
         }
 
         // 3) Compare (case-insensitive is fine for captcha)
         return expected.equalsIgnoreCase(inputCode.trim());
     }
-
-    @Override
-    public LoginResponseDTO login(LoginRequestDTO request) {
-        boolean captchaOk = validateCheckCode(request.getCheckCodeKey(), request.getCheckCode());
-        if (!captchaOk) {
-            throw new BusinessException("Invalid or expired Captcha");
-        }
-
-        UserInfo user = userInfoService.getUserInfoByEmail(request.getEmail());
-        if (user == null) {
-            throw new BusinessException("Email or password incorrect");
-        }
-
-        // NOTE: replace with hashed password verification
-        if (!safeEquals(user.getPassword(), request.getPassword())) {
-            throw new BusinessException("Email or password incorrect");
-        }
-
-        // NOTE: replace with JWT/session token generation
-        String token = UUID.randomUUID().toString();
-        return new LoginResponseDTO(token);
-    }
-
     @Override
     public void register(RegisterRequestDTO request) {
 
@@ -97,28 +91,50 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException("Invalid or expired Captcha");
         }
 
-        UserInfo userExist = userInfoService.getUserInfoByEmail(request.getEmail());
+        UserInfo userInfo = this.userInfoMapper.selectByEmail(request.getEmail());
 
-        if (userExist != null) {
-            throw new BusinessException("Email already in use");
+        if (null != userInfo) {
+            throw new BusinessException("User already exist");
+
+        }
+        String userId = StringTools.getUserId();
+        Date currentDate = new Date();
+        userInfo = new UserInfo();
+
+        userInfo.setUserId(userId);
+        userInfo.setEmail(request.getEmail());
+        userInfo.setPassword(StringTools.encodeByMD5(request.getPassword()));
+        userInfo.setNickName(request.getNickName());
+        userInfo.setCreateTime(currentDate);
+        userInfo.setLastOffTime(currentDate.getTime());
+        userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
+        this.userInfoMapper.insert(userInfo);
+
+           //TODO Add chatbot
+
+    }
+
+    @Override
+    public LoginResponseDTO login(LoginRequestDTO request) {
+
+        UserInfo userInfo = userInfoService.getUserInfoByEmail(request.getEmail());
+        // NOTE: replace with hashed password verification
+        String inputPw = StringTools.encodeByMD5(request.getPassword());
+
+        if (!validateCheckCode(request.getCheckCodeKey(), request.getCheckCode())) {
+            throw new BusinessException("Invalid or expired Captcha");
+        }
+        if (null == userInfo || StringTools.safeEquals(inputPw,userInfo.getPassword())) {
+            throw new BusinessException("Email or password incorrect");
         }
 
-        UserInfo user = new UserInfo();
-        user.setEmail(request.getEmail());
-        user.setNickName(request.getNickName());
+        if (UserStatusEnum.DISABLE.getStatus().equals(userInfo.getStatus())) {
+            throw new BusinessException("Account disabled");
+        }
 
-
-        // NOTE: store hashed password
-        user.setPassword(request.getPassword());
-        userInfoService.add(user);
-
+        // NOTE: replace with JWT/session token generation
+        String token = UUID.randomUUID().toString();
+        return new LoginResponseDTO(token);
     }
 
-    private boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
-    }
-
-    private boolean safeEquals(String a, String b) {
-        return a != null && a.equals(b);
-    }
 }

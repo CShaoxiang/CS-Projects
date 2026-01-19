@@ -19,7 +19,7 @@ public class UserInfo implements Serializable {
 	/**
 	 * userID
 	 */
-	private Integer userId;
+	private String userId;
 
 	/**
 	 * Email
@@ -57,7 +57,7 @@ public class UserInfo implements Serializable {
 	private Integer status;
 
 	/**
-	 * account create time 
+	 * account created time
 	 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -86,11 +86,11 @@ public class UserInfo implements Serializable {
 	private Long lastOffTime;
 
 
-	public void setUserId(Integer userId){
+	public void setUserId(String userId){
 		this.userId = userId;
 	}
 
-	public Integer getUserId(){
+	public String getUserId(){
 		return this.userId;
 	}
 
