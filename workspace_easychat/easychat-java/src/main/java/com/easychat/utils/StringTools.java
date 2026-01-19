@@ -1,5 +1,10 @@
 package com.easychat.utils;
+import com.easychat.entity.constants.Constants;
+import com.easychat.entity.enums.UserContactTypeEnum;
 import com.easychat.exception.BusinessException;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -50,4 +55,25 @@ public class StringTools {
         }
         return false;
     }
+    public static String encodeByMD5(String originString) {
+        return StringTools.isEmpty(originString) ? null : DigestUtils.md5Hex(originString);
+    }
+
+    public static boolean safeEquals(String a, String b) {
+        return a != null && a.equals(b);
+    }
+
+    public static String getRandomNumber(Integer count) { return RandomStringUtils.random(count,false,false);}
+
+    public static String getRandomString(Integer count) { return RandomStringUtils.random(count,true,true);}
+
+    public static String getUserId(){
+        return UserContactTypeEnum.USER.getPrefix() + getRandomNumber(Constants.LENGTH_11);
+    }
+
+    public static String getGroupId(){
+        return UserContactTypeEnum.GROUP.getPrefix() + getRandomNumber(Constants.LENGTH_11);
+    }
+
 }
+
