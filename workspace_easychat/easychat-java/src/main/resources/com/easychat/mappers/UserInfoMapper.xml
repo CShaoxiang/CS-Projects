@@ -10,7 +10,7 @@
 		<!--Email-->
 		<result column="email" property="email"  />
 		<!--Name-->
-		<result column="nick_name" property="nickName"  />
+		<result column="user_name" property="userName"  />
 		<!--0: join , 1 : agree and join -->
 		<result column="join_type" property="joinType"  />
 		<!--0 : female , 1 : male , 2 : not disclosed -->
@@ -36,7 +36,7 @@
 
 	<!-- 通用查询结果列-->
 	<sql id="base_column_list">
-		 u.user_id,u.email,u.nick_name,u.join_type,u.sex,
+		 u.user_id,u.email,u.user_name,u.join_type,u.sex,
 		 u.password,u.bio,u.status,u.create_time,u.last_login_time,
 		 u.area_name,u.area_code,u.last_off_time
 	</sql>
@@ -48,8 +48,8 @@
 			<if test="query.email != null and query.email!=''">
 				 and  u.email = #{query.email}
 			</if>
-			<if test="query.nickName != null and query.nickName!=''">
-				 and  u.nick_name = #{query.nickName}
+			<if test="query.userName != null and query.userName!=''">
+				 and  u.user_name = #{query.userName}
 			</if>
 			<if test="query.joinType != null">
 				 and  u.join_type = #{query.joinType}
@@ -90,8 +90,8 @@
 			<if test="query.emailFuzzy!= null  and query.emailFuzzy!=''">
 				 and  u.email like concat('%', #{query.emailFuzzy}, '%')
 			</if>
-			<if test="query.nickNameFuzzy!= null  and query.nickNameFuzzy!=''">
-				 and  u.nick_name like concat('%', #{query.nickNameFuzzy}, '%')
+			<if test="query.userNameFuzzy!= null  and query.userNameFuzzy!=''">
+				 and  u.user_name like concat('%', #{query.userNameFuzzy}, '%')
 			</if>
 			<if test="query.passwordFuzzy!= null  and query.passwordFuzzy!=''">
 				 and  u.password like concat('%', #{query.passwordFuzzy}, '%')
@@ -146,8 +146,8 @@
 			<if test="bean.email != null">
 				 email,
 			</if>
-			<if test="bean.nickName != null">
-				 nick_name,
+			<if test="bean.userName != null">
+				 user_name,
 			</if>
 			<if test="bean.joinType != null">
 				 join_type,
@@ -184,8 +184,8 @@
 			<if test="bean.email!=null">
 				 #{bean.email},
 			</if>
-			<if test="bean.nickName!=null">
-				 #{bean.nickName},
+			<if test="bean.userName!=null">
+				 #{bean.userName},
 			</if>
 			<if test="bean.joinType!=null">
 				 #{bean.joinType},
@@ -230,8 +230,8 @@
 			<if test="bean.email != null">
 				 email,
 			</if>
-			<if test="bean.nickName != null">
-				 nick_name,
+			<if test="bean.userName != null">
+				 user_name,
 			</if>
 			<if test="bean.joinType != null">
 				 join_type,
@@ -271,8 +271,8 @@
 			<if test="bean.email!=null">
 				 #{bean.email},
 			</if>
-			<if test="bean.nickName!=null">
-				 #{bean.nickName},
+			<if test="bean.userName!=null">
+				 #{bean.userName},
 			</if>
 			<if test="bean.joinType!=null">
 				 #{bean.joinType},
@@ -310,8 +310,8 @@
 			<if test="bean.email!=null">
 				 email = VALUES(email),
 			</if>
-			<if test="bean.nickName!=null">
-				 nick_name = VALUES(nick_name),
+			<if test="bean.userName!=null">
+				 user_name = VALUES(user_name),
 			</if>
 			<if test="bean.joinType!=null">
 				 join_type = VALUES(join_type),
@@ -350,7 +350,7 @@
 	<insert id="insertBatch" parameterType="com.easychat.entity.po.UserInfo" useGeneratedKeys="true" keyProperty="userId">
 		 INSERT INTO user_info(
 			 email,
-			 nick_name,
+			 user_name,
 			 join_type,
 			 sex,
 			 password,
@@ -365,7 +365,7 @@
 		 <foreach collection="list" item="item" separator=",">
 			 (
 				 #{item.email},
-				 #{item.nickName},
+				 #{item.userName},
 				 #{item.joinType},
 				 #{item.sex},
 				 #{item.password},
@@ -384,7 +384,7 @@
 	<insert id="insertOrUpdateBatch" parameterType="com.easychat.entity.po.UserInfo">
 		 INSERT INTO user_info(
 			 email,
-			 nick_name,
+			 user_name,
 			 join_type,
 			 sex,
 			 password,
@@ -399,7 +399,7 @@
 		 <foreach collection="list" item="item" separator=",">
 			 (
 				 #{item.email},
-				 #{item.nickName},
+				 #{item.userName},
 				 #{item.joinType},
 				 #{item.sex},
 				 #{item.password},
@@ -414,7 +414,7 @@
 		 </foreach>
 			on DUPLICATE key update 
 			email = VALUES(email),
-			nick_name = VALUES(nick_name),
+			user_name = VALUES(user_name),
 			join_type = VALUES(join_type),
 			sex = VALUES(sex),
 			password = VALUES(password),
@@ -434,8 +434,8 @@
 			<if test="bean.email != null">
 				 email = #{bean.email},
 			</if>
-			<if test="bean.nickName != null">
-				 nick_name = #{bean.nickName},
+			<if test="bean.userName != null">
+				 user_name = #{bean.userName},
 			</if>
 			<if test="bean.joinType != null">
 				 join_type = #{bean.joinType},
@@ -484,8 +484,8 @@
 			<if test="bean.email != null">
 				 email = #{bean.email},
 			</if>
-			<if test="bean.nickName != null">
-				 nick_name = #{bean.nickName},
+			<if test="bean.userName != null">
+				 user_name = #{bean.userName},
 			</if>
 			<if test="bean.joinType != null">
 				 join_type = #{bean.joinType},
@@ -535,8 +535,8 @@
 	<update id="updateByEmail" parameterType="com.easychat.entity.po.UserInfo">
 		 UPDATE user_info
  		 <set> 
-			<if test="bean.nickName != null">
-				 nick_name = #{bean.nickName},
+			<if test="bean.userName != null">
+				 user_name = #{bean.userName},
 			</if>
 			<if test="bean.joinType != null">
 				 join_type = #{bean.joinType},

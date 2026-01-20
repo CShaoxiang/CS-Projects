@@ -1,6 +1,6 @@
 package com.easychat.entity.po;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 import com.easychat.entity.enums.DateTimePatternEnum;
 import com.easychat.utils.DateUtil;
@@ -29,7 +29,7 @@ public class UserInfo implements Serializable {
 	/**
 	 * Name
 	 */
-	private String nickName;
+	private String userName;
 
 	/**
 	 * 0: join , 1 : agree and join 
@@ -37,7 +37,7 @@ public class UserInfo implements Serializable {
 	private Integer joinType;
 
 	/**
-	 * 0 : female , 1 : male , 2 : not disclosed 
+	 * 0 : female , 1 : male, 2 : not disclosed
 	 */
 	private Integer sex;
 
@@ -102,12 +102,12 @@ public class UserInfo implements Serializable {
 		return this.email;
 	}
 
-	public void setNickName(String nickName){
-		this.nickName = nickName;
+	public void setUserName(String userName){
+		this.userName = userName;
 	}
 
-	public String getNickName(){
-		return this.nickName;
+	public String getUserName(){
+		return this.userName;
 	}
 
 	public void setJoinType(Integer joinType){
@@ -192,6 +192,6 @@ public class UserInfo implements Serializable {
 
 	@Override
 	public String toString (){
-		return "userID:"+(userId == null ? "空" : userId)+"，Email:"+(email == null ? "空" : email)+"，Name:"+(nickName == null ? "空" : nickName)+"，0: join , 1 : agree and join :"+(joinType == null ? "空" : joinType)+"，0 : female , 1 : male , 2 : not disclosed :"+(sex == null ? "空" : sex)+"，password:"+(password == null ? "空" : password)+"，personal introduction:"+(bio == null ? "空" : bio)+"，status:"+(status == null ? "空" : status)+"，account create time :"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，last login time :"+(lastLoginTime == null ? "空" : DateUtil.format(lastLoginTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，location area:"+(areaName == null ? "空" : areaName)+"，location code :"+(areaCode == null ? "空" : areaCode)+"，last off time :"+(lastOffTime == null ? "空" : lastOffTime);
+		return "userID:"+(userId == null ? "空" : userId)+"，Email:"+(email == null ? "空" : email)+"，Name:"+(userName == null ? "空" : userName)+"，0: join , 1 : agree and join :"+(joinType == null ? "空" : joinType)+"，0 : female , 1 : male , 2 : not disclosed :"+(sex == null ? "空" : sex)+"，password:"+(password == null ? "空" : password)+"，personal introduction:"+(bio == null ? "空" : bio)+"，status:"+(status == null ? "空" : status)+"，account create time :"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，last login time :"+(lastLoginTime == null ? "空" : DateUtil.format(lastLoginTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，location area:"+(areaName == null ? "空" : areaName)+"，location code :"+(areaCode == null ? "空" : areaCode)+"，last off time :"+(lastOffTime == null ? "空" : lastOffTime);
 	}
 }

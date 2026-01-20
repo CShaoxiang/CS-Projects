@@ -20,8 +20,8 @@ public class RegisterRequestDTO implements Serializable {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Nickname must not be blank")
-    private String nickName;
+    @NotBlank(message = "userName must not be blank")
+    private String userName;
 
     @NotBlank(message = "Password must not be blank")
     private String password;
@@ -36,8 +36,8 @@ public class RegisterRequestDTO implements Serializable {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getNickName() { return nickName; }
-    public void setNickName(String nickName) { this.nickName = nickName; }
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
