@@ -1,6 +1,7 @@
 package com.easychat.service.impl;
 
 
+import com.easychat.entity.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.*;
 import com.easychat.entity.enums.UserStatusEnum;
@@ -13,6 +14,9 @@ import com.easychat.redis.RedisUtils;
 import com.easychat.service.AccountService;
 import com.easychat.utils.StringTools;
 import com.wf.captcha.ArithmeticCaptcha;
+import jdk.nashorn.internal.parser.Token;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
@@ -36,6 +40,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
+    @Autowired
+    private AppConfig appConfig;
 
 
     public AccountServiceImpl(RedisUtils<String> redisUtils, RedisComponent redisComponent, UserInfoServiceImpl userInfoService) {
@@ -104,7 +110,7 @@ public class AccountServiceImpl implements AccountService {
         userInfo.setUserId(userId);
         userInfo.setEmail(request.getEmail());
         userInfo.setPassword(StringTools.encodeByMD5(request.getPassword()));
-        userInfo.setNickName(request.getNickName());
+        userInfo.setUserName(request.getUserName());
         userInfo.setCreateTime(currentDate);
         userInfo.setLastOffTime(currentDate.getTime());
         userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
@@ -115,7 +121,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public LoginResponseDTO login(LoginRequestDTO request) {
+    public TokenUserInfoDto login(LoginRequestDTO request) {
 
         UserInfo userInfo = userInfoService.getUserInfoByEmail(request.getEmail());
         // NOTE: replace with hashed password verification
@@ -124,7 +130,7 @@ public class AccountServiceImpl implements AccountService {
         if (!validateCheckCode(request.getCheckCodeKey(), request.getCheckCode())) {
             throw new BusinessException("Invalid or expired Captcha");
         }
-        if (null == userInfo || StringTools.safeEquals(inputPw,userInfo.getPassword())) {
+        if (null == userInfo || !StringTools.safeEquals(inputPw,userInfo.getPassword())) {
             throw new BusinessException("Email or password incorrect");
         }
 
@@ -132,9 +138,30 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException("Account disabled");
         }
 
-        // NOTE: replace with JWT/session token generation
+        TokenUserInfoDto tokenUserInfoDto = new TokenUserInfoDto();
+
+        Long lastHeartBeat = redisComponent.getUserHeartBeat(userInfo.getUserId());
+        if (lastHeartBeat != null) {
+            throw new BusinessException("The account has login");
+        }
+
+        // session token generation
         String token = UUID.randomUUID().toString();
-        return new LoginResponseDTO(token);
+        return tokenUserInfoDto;
+    }
+
+    private TokenUserInfoDto getTokenUserInfo( UserInfo userInfo) {
+        TokenUserInfoDto tokenUserInfoDto = new TokenUserInfoDto();
+        tokenUserInfoDto.setUserId(userInfo.getUserId());
+        tokenUserInfoDto.setUserName(userInfo.getUserName());
+
+        String adminEmails = appConfig.getAdminEmails();
+        if (!StringTools.isEmpty(adminEmails) && ArrayUtils.contains(adminEmails.split(","), userInfo.getEmail())) {
+            tokenUserInfoDto.setAdmin(true);
+        } else {
+            tokenUserInfoDto.setAdmin(false);
+        }
+        return tokenUserInfoDto;
     }
 
 }
