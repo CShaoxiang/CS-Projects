@@ -7,6 +7,7 @@ import com.easychat.entity.dto.*;
 import com.easychat.entity.enums.UserStatusEnum;
 import com.easychat.entity.po.UserInfo;
 import com.easychat.entity.query.UserInfoQuery;
+import com.easychat.entity.vo.UserInfoVO;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.redis.RedisComponent;
@@ -14,10 +15,10 @@ import com.easychat.redis.RedisUtils;
 import com.easychat.service.AccountService;
 import com.easychat.utils.StringTools;
 import com.wf.captcha.ArithmeticCaptcha;
-import jdk.nashorn.internal.parser.Token;
 import org.apache.commons.lang3.ArrayUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.hutool.core.bean.BeanUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import javax.annotation.Resource;
@@ -40,15 +41,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
-    @Autowired
-    private AppConfig appConfig;
 
+    @Resource
+    private AppConfig appConfig;
 
     public AccountServiceImpl(RedisUtils<String> redisUtils, RedisComponent redisComponent, UserInfoServiceImpl userInfoService) {
         this.redisUtils = redisUtils;
         this.redisComponent = redisComponent;
         this.userInfoService = userInfoService;
-
     }
 
 
@@ -90,6 +90,7 @@ public class AccountServiceImpl implements AccountService {
         return expected.equalsIgnoreCase(inputCode.trim());
     }
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void register(RegisterRequestDTO request) {
 
         boolean captchaOk = validateCheckCode(request.getCheckCodeKey(), request.getCheckCode());
@@ -121,7 +122,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public TokenUserInfoDto login(LoginRequestDTO request) {
+    public UserInfoVO login(LoginRequestDTO request) {
 
         UserInfo userInfo = userInfoService.getUserInfoByEmail(request.getEmail());
         // NOTE: replace with hashed password verification
@@ -138,16 +139,26 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessException("Account disabled");
         }
 
-        TokenUserInfoDto tokenUserInfoDto = new TokenUserInfoDto();
+        //TODO SEARCH GROUP
+        //TODO SEARCH CONTACT
+
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfo(userInfo);
 
         Long lastHeartBeat = redisComponent.getUserHeartBeat(userInfo.getUserId());
         if (lastHeartBeat != null) {
             throw new BusinessException("The account has login");
         }
 
-        // session token generation
-        String token = UUID.randomUUID().toString();
-        return tokenUserInfoDto;
+        // session token generation to redis
+        String token = StringTools.encodeByMD5(tokenUserInfoDto.getUserId() + StringTools.getRandomString(Constants.LENGTH_20));
+        tokenUserInfoDto.setToken(token);
+        redisComponent.saveTokenUserInfoDto(tokenUserInfoDto);
+
+        UserInfoVO userInfoVo = BeanUtil.copyProperties(userInfo, UserInfoVO.class);
+        userInfoVo.setToken(tokenUserInfoDto.getToken());
+        userInfoVo.setAdmin(tokenUserInfoDto.getAdmin());
+
+        return userInfoVo;
     }
 
     private TokenUserInfoDto getTokenUserInfo( UserInfo userInfo) {

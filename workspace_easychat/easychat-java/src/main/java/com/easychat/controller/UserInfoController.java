@@ -60,7 +60,7 @@ public class UserInfoController extends ABaseController{
 	 * 根据UserId查询对象
 	 */
 	@RequestMapping("/getUserInfoByUserId")
-	public ResponseVO getUserInfoByUserId(Integer userId) {
+	public ResponseVO getUserInfoByUserId(String userId) {
 		return getSuccessResponseVO(userInfoService.getUserInfoByUserId(userId));
 	}
 
@@ -68,7 +68,7 @@ public class UserInfoController extends ABaseController{
 	 * 根据UserId修改对象
 	 */
 	@RequestMapping("/updateUserInfoByUserId")
-	public ResponseVO updateUserInfoByUserId(UserInfo bean,Integer userId) {
+	public ResponseVO updateUserInfoByUserId(UserInfo bean,String userId) {
 		userInfoService.updateUserInfoByUserId(bean,userId);
 		return getSuccessResponseVO(null);
 	}
@@ -77,7 +77,7 @@ public class UserInfoController extends ABaseController{
 	 * 根据UserId删除
 	 */
 	@RequestMapping("/deleteUserInfoByUserId")
-	public ResponseVO deleteUserInfoByUserId(Integer userId) {
+	public ResponseVO deleteUserInfoByUserId(String userId) {
 		userInfoService.deleteUserInfoByUserId(userId);
 		return getSuccessResponseVO(null);
 	}

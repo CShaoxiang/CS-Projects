@@ -56,19 +56,19 @@ public interface UserInfoService {
 	/**
 	 * 根据UserId查询对象
 	 */
-	UserInfo getUserInfoByUserId(Integer userId);
+	UserInfo getUserInfoByUserId(String userId);
 
 
 	/**
 	 * 根据UserId修改
 	 */
-	Integer updateUserInfoByUserId(UserInfo bean,Integer userId);
+	Integer updateUserInfoByUserId(UserInfo bean,String userId);
 
 
 	/**
 	 * 根据UserId删除
 	 */
-	Integer deleteUserInfoByUserId(Integer userId);
+	Integer deleteUserInfoByUserId(String userId);
 
 
 	/**

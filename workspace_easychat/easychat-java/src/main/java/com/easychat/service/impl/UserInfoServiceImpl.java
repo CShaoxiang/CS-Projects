@@ -108,7 +108,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	 * 根据UserId获取对象
 	 */
 	@Override
-	public UserInfo getUserInfoByUserId(Integer userId) {
+	public UserInfo getUserInfoByUserId(String userId) {
 		return this.userInfoMapper.selectByUserId(userId);
 	}
 
@@ -116,7 +116,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	 * 根据UserId修改
 	 */
 	@Override
-	public Integer updateUserInfoByUserId(UserInfo bean, Integer userId) {
+	public Integer updateUserInfoByUserId(UserInfo bean, String userId) {
 		return this.userInfoMapper.updateByUserId(bean, userId);
 	}
 
@@ -124,7 +124,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 	 * 根据UserId删除
 	 */
 	@Override
-	public Integer deleteUserInfoByUserId(Integer userId) {
+	public Integer deleteUserInfoByUserId(String userId) {
 		return this.userInfoMapper.deleteByUserId(userId);
 	}
 

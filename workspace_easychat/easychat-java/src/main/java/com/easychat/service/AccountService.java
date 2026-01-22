@@ -1,6 +1,7 @@
 package com.easychat.service;
 
 import com.easychat.entity.dto.*;
+import com.easychat.entity.vo.UserInfoVO;
 
 
 public interface AccountService {
@@ -13,6 +14,6 @@ public interface AccountService {
      */
     boolean validateCheckCode(String checkCodeKey, String inputCode);
 
-    TokenUserInfoDto login(LoginRequestDTO request);
+    UserInfoVO login(LoginRequestDTO request);
     void register(RegisterRequestDTO request);
 }

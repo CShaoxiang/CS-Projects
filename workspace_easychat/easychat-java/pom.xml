@@ -158,6 +158,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!--Hutools-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.29</version>
+        </dependency>
 
         <dependency>
             <groupId>org.redisson</groupId>
