@@ -6,7 +6,8 @@ public enum ResponseCodeEnum {
     CODE_404(404, "Requested resource not found"),
     CODE_600(600, "Invalid request parameters"),
     CODE_601(601, "Resource already exists"),
-    CODE_500(500, "Internal server error. Please contact the administrator");
+    CODE_500(500, "Internal server error. Please contact the administrator"),
+    CODE_901(901, "Login session Expired");
 
     private Integer code;
 

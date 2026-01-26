@@ -63,7 +63,7 @@ public class StringTools {
         return a != null && a.equals(b);
     }
 
-    public static String getRandomNumber(Integer count) { return RandomStringUtils.random(count,false,false);}
+    public static String getRandomNumber(Integer count) { return RandomStringUtils.random(count,false,true);}
 
     public static String getRandomString(Integer count) { return RandomStringUtils.random(count,true,true);}
 
