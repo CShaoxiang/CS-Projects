@@ -2,15 +2,21 @@ package com.easychat.controller;
 
 
 
+import cn.hutool.core.bean.BeanUtil;
+import com.easychat.annotation.GlobalInterceptor;
 import com.easychat.entity.dto.LoginRequestDTO;
 import com.easychat.entity.dto.RegisterRequestDTO;
+import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.vo.ResponseVO;
+import com.easychat.entity.vo.SysSettingVO;
+import com.easychat.redis.RedisComponent;
 import com.easychat.service.AccountService;
-import com.easychat.service.impl.AccountServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.annotation.Resources;
 
 
 @RestController("accountController")
@@ -20,6 +26,9 @@ public class AccountController extends ABaseController{
 
 
     private final AccountService accountService;
+
+    @Resource
+    private  RedisComponent redisComponent;
 
 
     public AccountController(AccountService accountService) {
@@ -41,6 +50,13 @@ public class AccountController extends ABaseController{
     public ResponseVO register(@Validated  @RequestBody RegisterRequestDTO request) {
         accountService.register(request);
         return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping(value = "/getSysSetting")
+    @GlobalInterceptor
+    public ResponseVO getSysSetting() {
+        SysSettingDto sysSettingDto = redisComponent.getSysSetting();
+        return getSuccessResponseVO(BeanUtil.copyProperties(sysSettingDto, SysSettingVO.class));
     }
 
 }

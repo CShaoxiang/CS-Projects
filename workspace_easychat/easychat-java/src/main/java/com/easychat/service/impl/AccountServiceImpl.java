@@ -1,6 +1,5 @@
 package com.easychat.service.impl;
 
-
 import com.easychat.entity.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.*;
@@ -17,6 +16,7 @@ import com.easychat.utils.StringTools;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.apache.commons.lang3.ArrayUtils;
 import cn.hutool.core.bean.BeanUtil;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,26 +31,22 @@ public class AccountServiceImpl implements AccountService {
     private static final int CAPTCHA_WIDTH = 100;
     private static final int CAPTCHA_HEIGHT = 42;
     private static final long CAPTCHA_TTL_SECONDS = Constants.REDIS_TIME_1MIN * 6;
-
-
-    private final RedisUtils<String> redisUtils;
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(AccountServiceImpl.class);
 
     @Resource
-    private final RedisComponent redisComponent;
-    private final UserInfoServiceImpl userInfoService;
+    private  RedisUtils<String> redisUtils;
+
+    @Resource
+    private  RedisComponent redisComponent;
+
+    @Resource
+    private  UserInfoServiceImpl userInfoService;
 
     @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
 
     @Resource
     private AppConfig appConfig;
-
-    public AccountServiceImpl(RedisUtils<String> redisUtils, RedisComponent redisComponent, UserInfoServiceImpl userInfoService) {
-        this.redisUtils = redisUtils;
-        this.redisComponent = redisComponent;
-        this.userInfoService = userInfoService;
-    }
-
 
     @Override
     public CheckCodeResponseDTO createCheckCode() {
@@ -105,10 +101,13 @@ public class AccountServiceImpl implements AccountService {
 
         }
         String userId = StringTools.getUserId();
+
         Date currentDate = new Date();
         userInfo = new UserInfo();
 
         userInfo.setUserId(userId);
+
+
         userInfo.setEmail(request.getEmail());
         userInfo.setPassword(StringTools.encodeByMD5(request.getPassword()));
         userInfo.setUserName(request.getUserName());
