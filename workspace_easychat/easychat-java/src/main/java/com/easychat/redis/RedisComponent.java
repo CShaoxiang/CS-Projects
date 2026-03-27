@@ -2,6 +2,7 @@ package com.easychat.redis;
 
 
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import org.springframework.stereotype.Component;
 
@@ -34,5 +35,11 @@ public class RedisComponent {
     // Delete User Heartbeat
     public void removeUserHeartBeat(String userId) {
         redisUtils.delete(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId);
+    }
+
+    public SysSettingDto getSysSetting() {
+        SysSettingDto sysSettingDto = (SysSettingDto) redisUtils.get(Constants.REDIS_KEY_SYS_SETTING);
+        sysSettingDto = sysSettingDto == null ? new SysSettingDto() : sysSettingDto;
+        return sysSettingDto;
     }
 }
